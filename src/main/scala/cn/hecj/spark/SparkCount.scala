@@ -1,5 +1,6 @@
 package cn.hecj.spark
 
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -19,7 +20,7 @@ object SparkCount {
 
     val conf = new SparkConf().setAppName("spark-test").setMaster("local[*]")
     val sc = new SparkContext(conf)
-    var dataRDD = sc.textFile("hdfs://localhost:9000/data/demo/log.txt")
+    var dataRDD: RDD[String] = sc.textFile("hdfs://localhost:9000/data/demo/log.txt")
 
     dataRDD.collect().foreach(println)
 
