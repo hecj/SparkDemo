@@ -8,6 +8,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 /**
   * Created by zx on 2017/10/17.
   * 第一个kafka程序 保存中间结果
+  * 这种方式有问题，累加应该放在redis中，后期处理
   */
 object KafkaWordCountStateHecj {
 
