@@ -1,4 +1,4 @@
-package cn.hecj.spark
+package cn.hecj.spark0305
 
 import org.apache.spark.{HashPartitioner, SparkConf}
 import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
@@ -31,7 +31,7 @@ object KafkaWordCountStateHecj {
 
   def main(args: Array[String]): Unit = {
 
-    val conf = new SparkConf().setAppName("KafkaWordCount").setMaster("local[*]")
+    val conf = new SparkConf().setAppName("KafkaWordCountStateHecj").setMaster("local[*]")
 
     val ssc = new StreamingContext(conf, Seconds(5))
 

@@ -1,9 +1,9 @@
-package cn.edu360.day9
+package cn.hecj.spark0306
 
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.StringDecoder
-import kafka.utils.{ZKGroupTopicDirs, ZkUtils}
+import kafka.utils.{ZKGroupTopicDirs, ZKStringSerializer, ZkUtils}
 import org.I0Itec.zkclient.ZkClient
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
@@ -11,26 +11,26 @@ import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils, OffsetRang
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
 /**
-  * Created by zx on 2017/7/31.
-  * 直连方式（推荐使用直连方式，kafka0.10版本去掉了Receiver方式）
+  * Created by hecj 20200306
+  * 直连方式(Direct)（推荐使用直连方式，kafka0.10版本去掉了Receiver方式）
   */
 object KafkaDirectWordCount {
 
   def main(args: Array[String]): Unit = {
 
     //指定组名
-    val group = "g001"
+    val group = "g1"
     //创建SparkConf
     val conf = new SparkConf().setAppName("KafkaDirectWordCount").setMaster("local[2]")
     //创建SparkStreaming，并设置间隔时间
     val ssc = new StreamingContext(conf, Duration(5000))
     //指定消费的 topic 名字
-    val topic = "wwcc"
+    val topic = "spark_test3"
     //指定kafka的broker地址(sparkStream的Task直连到kafka的分区上，用更加底层的API消费，效率更高)
-    val brokerList = "node-4:9092,node-5:9092,node-6:9092"
+    val brokerList = "localhost:9092"
 
     //指定zk的地址，后期更新消费的偏移量时使用(以后可以使用Redis、MySQL来记录偏移量)
-    val zkQuorum = "node-1:2181,node-2:2181,node-3:2181"
+    val zkQuorum = "localhost:2181"
     //创建 stream 时使用的 topic 名字集合，SparkStreaming可同时消费多个topic
     val topics: Set[String] = Set(topic)
 
@@ -50,6 +50,7 @@ object KafkaDirectWordCount {
     //zookeeper 的host 和 ip，创建一个 client,用于跟新偏移量量的
     //是zookeeper的客户端，可以从zk中读取偏移量数据，并更新偏移量
     val zkClient = new ZkClient(zkQuorum)
+    zkClient.setZkSerializer(ZKStringSerializer)
 
     //查询该路径下是否字节点（默认有字节点为我们自己保存不同 partition 时生成的）
     // /g001/offsets/wordcount/0/10001"
@@ -57,6 +58,7 @@ object KafkaDirectWordCount {
     // /g001/offsets/wordcount/2/10001"
     //zkTopicPath  -> /g001/offsets/wordcount/
     val children = zkClient.countChildren(zkTopicPath)
+    println("children-----"+children)
 
     var kafkaStream: InputDStream[(String, String)] = null
 
@@ -104,11 +106,19 @@ object KafkaDirectWordCount {
 
     //依次迭代DStream中的RDD
     messages.foreachRDD { rdd =>
-      //对RDD进行操作，触发Action
-      rdd.foreachPartition(partition =>
+
+      // 周期性遍历 5秒钟
+
+      println("----------rdd-------"+rdd)
+
+      //对RDD进行操作，触发Action (有几个kafka分区就打印几次)
+      rdd.foreachPartition(partition => {
+        println("partition-------"+partition)
+        // 打印 单个kafka分区中的消息
         partition.foreach(x => {
-          println(x)
+            println("partition.foreach--"+x)
         })
+        }
       )
 
       for (o <- offsetRanges) {
@@ -116,6 +126,7 @@ object KafkaDirectWordCount {
         val zkPath = s"${topicDirs.consumerOffsetDir}/${o.partition}"
         //将该 partition 的 offset 保存到 zookeeper
         //  /g001/offsets/wordcount/0/20000
+        println("zkPath-------"+zkPath+"---"+o.untilOffset.toString)
         ZkUtils.updatePersistentPath(zkClient, zkPath, o.untilOffset.toString)
       }
     }

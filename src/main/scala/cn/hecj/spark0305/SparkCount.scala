@@ -1,4 +1,4 @@
-package cn.hecj.spark
+package cn.hecj.spark0305
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
