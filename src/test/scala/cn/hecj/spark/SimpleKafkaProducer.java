@@ -7,6 +7,7 @@ package cn.hecj.spark;
  * @create: 20200309
  **/
 
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -19,7 +20,7 @@ import java.util.concurrent.Future;
  */
 public class SimpleKafkaProducer {
 	private static KafkaProducer<String, String> producer;
-	private final static String TOPIC = "spark_test";
+	private final static String TOPIC = "access_log2";
 	public SimpleKafkaProducer(){
 		Properties props = new Properties();
 		props.put("bootstrap.servers", "localhost:9092");
@@ -36,14 +37,27 @@ public class SimpleKafkaProducer {
 		producer = new KafkaProducer<String, String>(props);
 	}
 	public void produce(){
-		for (int i = 0;i<100;i++){
+		for (int i = 0;i<100000;i++){
 //			String key = String.valueOf(i);
-			String key = "k1";
-			String data = "hello kafka message："+key;
+			try {
+				Thread.sleep(100l);
+			} catch (Exception ex){
 			
-			Future<RecordMetadata> result = producer.send(new ProducerRecord<String, String>(TOPIC,key,data));
+			}
+			String key = "k"+i;
+			String day = "2019-0"+ RandomUtils.nextInt(1,3)+"-0"+RandomUtils.nextInt(1,3)+" 02:23:45";
+			String ip = "20.34.11."+RandomUtils.nextInt(1,3);
+			String api = "/api/log";
+			String user = ""+RandomUtils.nextInt(1,3);
 			
-			System.out.println(data);
+			StringBuffer message = new StringBuffer();
+			message.append(day).append(",");
+			message.append(ip).append(",");
+			message.append(api).append(",");
+			message.append(user);
+			
+			Future<RecordMetadata> result = producer.send(new ProducerRecord<String, String>(TOPIC,key,message.toString()));
+//			System.out.println(message);
 		}
 		producer.close();
 	}

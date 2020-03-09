@@ -29,7 +29,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
   */
 object AccessCount {
   val group:String = "access_group"
-  val topic:String = "access_log"
+  val topic:String = "access_log2"
 
   def main(args: Array[String]): Unit = {
     val brokerList = "localhost:9092"
@@ -60,6 +60,11 @@ object AccessCount {
       // 每一行的数据
       val lines: RDD[Array[String]] = kafkaRDD.map(x =>x._2.split(","))
 
+      for(o <- offsetRanges){
+        val zkPath = s"${topicDirs.consumerOffsetDir}/${o.partition}"
+        println("before "+zkPath+":"+o.untilOffset.toString)
+      }
+
       // 每天每个接口的访问量
       CountUtil.dayApiCount(lines)
       // 每天每个ip的访问量
@@ -75,6 +80,7 @@ object AccessCount {
         val zkPath = s"${topicDirs.consumerOffsetDir}/${o.partition}"
         // 更新偏移量
         ZkUtils.updatePersistentPath(zkClient,zkPath,o.untilOffset.toString)
+        println(zkPath+":"+o.untilOffset.toString)
       }
     })
     ssc.start()

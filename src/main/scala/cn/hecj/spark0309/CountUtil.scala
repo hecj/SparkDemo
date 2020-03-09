@@ -14,8 +14,6 @@ import redis.clients.jedis.Jedis
   */
 object CountUtil {
 
-  val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
   /**
     * 每天每个接口的访问量
     * by hechaojie
@@ -24,34 +22,33 @@ object CountUtil {
 
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
+        val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(2))
       } catch {
         case ex: Exception =>{
-          println("IO Exception")
+          ex.printStackTrace()
+          println("Exception "+x(0))
         }
           ("null")
       }
-
     })
+
+    println("数据条数:"+dayApiRDD.count())
+
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
 
-    reduceRDD.foreach(println)
-
-    println("\n===================dayApiCount==============================")
+//    println("\n===================dayApiCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
-      println("----------------------")
-      println("分区:"+partition)
       // redis连接应该在Patition上获取
       val redis: Jedis = JedisConnectionPoolKit.getConnection();
-      println("redis:"+redis)
       partition.foreach(x => {
-        println("before "+redis.get("day_api_count_"+x._1))
-        println("day_api_count_"+x._1+":"+x._2)
-        redis.incrBy("day_api_count_"+x._1,x._2)
-        println("after "+redis.get("day_api_count_"+x._1))
+        val key = "day_api_count_"+x._1
+        redis.incrBy(key,x._2)
+        println("after "+key++": "+redis.get(key))
       })
       redis.close()
     })
@@ -65,11 +62,14 @@ object CountUtil {
 
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
+        val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(1))
       } catch {
         case ex: Exception =>{
-          println("IO Exception")
+          ex.printStackTrace()
+          println("Exception "+x(0))
         }
           ("null")
       }
@@ -77,19 +77,15 @@ object CountUtil {
     })
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
-    println("\n===================dayIpCount==============================")
+//    println("\n===================dayIpCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
-      println("----------------------")
-      println("分区:"+partition)
       // redis连接应该在Patition上获取
       val redis: Jedis = JedisConnectionPoolKit.getConnection();
-      println("redis:"+redis)
       partition.foreach(x => {
-        println("before "+redis.get("day_ip_count_"+x._1))
-        println("day_ip_count_"+x._1+":"+x._2)
-        redis.incrBy("day_ip_count_"+x._1,x._2)
-        println("after "+redis.get("day_ip_count_"+x._1))
+        val key = "day_ip_count_"+x._1
+        redis.incrBy(key,x._2)
+        println("after "+key++": "+redis.get(key))
       })
       redis.close()
     })
@@ -103,11 +99,14 @@ object CountUtil {
 
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
+        val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(3))
       } catch {
         case ex: Exception =>{
-          println("IO Exception")
+          ex.printStackTrace()
+          println("Exception "+x(0))
         }
           ("null")
       }
@@ -115,19 +114,15 @@ object CountUtil {
     })
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
-    println("\n===================dayUserCount==============================")
+//    println("\n===================dayUserCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
-      println("----------------------")
-      println("分区:"+partition)
       // redis连接应该在Patition上获取
       val redis: Jedis = JedisConnectionPoolKit.getConnection();
-      println("redis:"+redis)
       partition.foreach(x => {
-        println("before "+redis.get("day_user_count_"+x._1))
-        println("day_user_count_"+x._1+":"+x._2)
-        redis.incrBy("day_user_count_"+x._1,x._2)
-        println("after "+redis.get("day_user_count_"+x._1))
+        val key = "day_user_count_"+x._1
+        redis.incrBy(key,x._2)
+        println("after "+key++": "+redis.get(key))
       })
       redis.close()
     })
@@ -141,11 +136,14 @@ object CountUtil {
 
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
+        val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(3)+"_"+x(2))
       } catch {
         case ex: Exception =>{
-          println("IO Exception")
+          ex.printStackTrace()
+          println("Exception "+x(0))
         }
           ("null")
       }
@@ -153,19 +151,15 @@ object CountUtil {
     })
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
-    println("\n===================dayUserApiCount==============================")
+//    println("\n===================dayUserApiCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
-      println("----------------------")
-      println("分区:"+partition)
       // redis连接应该在Patition上获取
       val redis: Jedis = JedisConnectionPoolKit.getConnection();
-      println("redis:"+redis)
       partition.foreach(x => {
-        println("before "+redis.get("day_user_api_count_"+x._1))
-        println("day_user_api_count_"+x._1+":"+x._2)
-        redis.incrBy("day_user_api_count_"+x._1,x._2)
-        println("after "+redis.get("day_user_api_count_"+x._1))
+        val key = "day_user_api_count_"+x._1
+        redis.incrBy(key,x._2)
+        println("after "+key++": "+redis.get(key))
       })
       redis.close()
     })
