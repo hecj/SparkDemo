@@ -8,10 +8,12 @@ package cn.hecj.spark;
  **/
 
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
@@ -37,7 +39,7 @@ public class SimpleKafkaProducer {
 		producer = new KafkaProducer<String, String>(props);
 	}
 	public void produce(){
-		for (int i = 0;i<100000;i++){
+		for (int i = 0;i<1000;i++){
 //			String key = String.valueOf(i);
 			try {
 				Thread.sleep(100l);
@@ -45,10 +47,10 @@ public class SimpleKafkaProducer {
 			
 			}
 			String key = "k"+i;
-			String day = "2019-0"+ RandomUtils.nextInt(1,3)+"-0"+RandomUtils.nextInt(1,3)+" 02:23:45";
-			String ip = "20.34.11."+RandomUtils.nextInt(1,3);
+			String day = DateFormatUtils.format(new Date(),"yyyy-MM-dd HH:mm:ss");
+			String ip = "20.34.11."+RandomUtils.nextInt(1,100);
 			String api = "/api/log";
-			String user = ""+RandomUtils.nextInt(1,3);
+			String user = ""+RandomUtils.nextInt(1,20);
 			
 			StringBuffer message = new StringBuffer();
 			message.append(day).append(",");

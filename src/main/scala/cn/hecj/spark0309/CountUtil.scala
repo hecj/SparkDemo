@@ -1,8 +1,6 @@
 package cn.hecj.spark0309
 
 import java.text.{DateFormat, SimpleDateFormat}
-import java.util.Date
-
 import org.apache.spark.rdd.RDD
 import redis.clients.jedis.Jedis
 
@@ -23,7 +21,7 @@ object CountUtil {
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
         val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(2))
       } catch {
@@ -35,20 +33,22 @@ object CountUtil {
       }
     })
 
-    println("数据条数:"+dayApiRDD.count())
+    println("dayApiCount数据条数:"+dayApiRDD.count())
 
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
+
+    println("dayApiCountreduceRDD数据条数:"+reduceRDD.count())
 
 //    println("\n===================dayApiCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
       // redis连接应该在Patition上获取
-      val redis: Jedis = JedisConnectionPoolKit.getConnection();
+      val redis: Jedis = JedisConnectionPoolKit.getConnection()
       partition.foreach(x => {
         val key = "day_api_count_"+x._1
         redis.incrBy(key,x._2)
-        println("after "+key++": "+redis.get(key))
+//        println("dayApiCount after "+key++": "+redis.get(key))
       })
       redis.close()
     })
@@ -63,7 +63,7 @@ object CountUtil {
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
         val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(1))
       } catch {
@@ -75,8 +75,10 @@ object CountUtil {
       }
 
     })
+    println("dayIpCount数据条数:"+dayApiRDD.count())
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
+    println("dayIpCountRDD数据条数:"+reduceRDD.count())
 //    println("\n===================dayIpCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
@@ -85,7 +87,7 @@ object CountUtil {
       partition.foreach(x => {
         val key = "day_ip_count_"+x._1
         redis.incrBy(key,x._2)
-        println("after "+key++": "+redis.get(key))
+//        println("dayIpCount after "+key++": "+redis.get(key))
       })
       redis.close()
     })
@@ -100,7 +102,7 @@ object CountUtil {
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
         val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(3))
       } catch {
@@ -112,8 +114,10 @@ object CountUtil {
       }
 
     })
+    println("dayUserCount数据条数:"+dayApiRDD.count())
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
+    println("dayUserCountRDD数据条数:"+reduceRDD.count())
 //    println("\n===================dayUserCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
@@ -122,7 +126,7 @@ object CountUtil {
       partition.foreach(x => {
         val key = "day_user_count_"+x._1
         redis.incrBy(key,x._2)
-        println("after "+key++": "+redis.get(key))
+//        println("dayUserCount after "+key++": "+redis.get(key))
       })
       redis.close()
     })
@@ -137,7 +141,7 @@ object CountUtil {
     val dayApiRDD: RDD[String] = lines.map(x=>{
       try {
         val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+        val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
         val dateStr:String = dateFormat2.format(dateFormat.parse(x(0)))
         (dateStr+"_"+x(3)+"_"+x(2))
       } catch {
@@ -149,8 +153,10 @@ object CountUtil {
       }
 
     })
+    println("dayUserApiCount数据条数:"+dayApiRDD.count())
     val dayApiRDDOne: RDD[(String,Int)] = dayApiRDD.map(x=>(x,1))
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
+    println("dayUserApiCountRDD数据条数:"+reduceRDD.count())
 //    println("\n===================dayUserApiCount==============================")
     // 遍历spark分区
     reduceRDD.foreachPartition(partition =>{
@@ -159,7 +165,7 @@ object CountUtil {
       partition.foreach(x => {
         val key = "day_user_api_count_"+x._1
         redis.incrBy(key,x._2)
-        println("after "+key++": "+redis.get(key))
+//        println("dayUserApiCount after "+key++": "+redis.get(key))
       })
       redis.close()
     })
