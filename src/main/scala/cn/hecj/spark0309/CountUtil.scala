@@ -18,7 +18,9 @@ object CountUtil {
     */
   def dayApiCount(lines: RDD[Array[String]]): Unit ={
 
+    // lines.map是在exector端执行的，调用是在Driver调用的
     val dayApiRDD: RDD[String] = lines.map(x=>{
+      // 这里的代码是在executer执行的
       try {
         val dateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val dateFormat2:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
@@ -80,8 +82,14 @@ object CountUtil {
     val reduceRDD: RDD[(String,Int)] = dayApiRDDOne.reduceByKey((x,y)=>x+y)
     println("dayIpCountRDD数据条数:"+reduceRDD.count())
 //    println("\n===================dayIpCount==============================")
+
+    // 这个方式 redis连接是在Driver创建的
+    // val redis: Jedis = JedisConnectionPoolKit.getConnection();
+
     // 遍历spark分区
+    // reduceRDD.foreachPartition 是一个Action
     reduceRDD.foreachPartition(partition =>{
+      // 这里面的代码是在Executor执行的
       // redis连接应该在Patition上获取
       val redis: Jedis = JedisConnectionPoolKit.getConnection();
       partition.foreach(x => {

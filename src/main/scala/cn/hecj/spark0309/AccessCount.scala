@@ -26,16 +26,20 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
   *
   * by hechaojie
   * date 20200309
+  笔记：
+   reduce是一个Action，会把结果返回到Driver端
   */
 object AccessCount {
-  val group:String = "access_group"
-  val topic:String = "access_log2"
+  val group:String = "g1"
+  val topic:String = "log2"
 
   def main(args: Array[String]): Unit = {
     val brokerList = "localhost:9092"
     val zkServer = "localhost:2181"
-
-    val conf = new SparkConf().setAppName("AccessCount").setMaster("local[2]")
+  // 在本地运行
+//    val conf = new SparkConf().setAppName("AccessCount").setMaster("local[2]")
+  // 在集群上运行
+    val conf = new SparkConf().setAppName("AccessCount")//.setMaster("spark://192.168.30.99:7077")
     val ssc:StreamingContext = new StreamingContext(conf, Duration(5000))
     val topicList: Set[String] = Set(topic)
     val topicDirs = new ZKGroupTopicDirs(group, topic)
@@ -52,12 +56,15 @@ object AccessCount {
     zkClient.setZkSerializer(ZKStringSerializer)
     var kafkaStream: InputDStream[(String, String)] = buildDirectStream(zkClient,zkTopicPath,ssc,kafkaParams,topicList)
 
+
+    // kafkaStream.foreachRDD是在Driver端执行的
     kafkaStream.foreachRDD( kafkaRDD =>{
       // 获取当前批次kafka消息的偏移量
       val offsetRanges: Array[OffsetRange] = kafkaRDD.asInstanceOf[HasOffsetRanges].offsetRanges
       // 每一行的数据
 //      val lines : RDD[String] = kafkaRDD.map(_._2)
       // 每一行的数据
+      // kafkaRDD.map 调用RDD的算子是在exector端执行的
       val lines: RDD[Array[String]] = kafkaRDD.map(x =>x._2.split(","))
 
       for(o <- offsetRanges){
