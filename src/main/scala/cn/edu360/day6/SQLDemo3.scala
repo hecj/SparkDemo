@@ -7,6 +7,8 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * Created by zx on 2017/10/13.
+  * * SparkSQL 1.x编程方式
+  * * DataFrame方式查询
   */
 object SQLDemo3 {
 

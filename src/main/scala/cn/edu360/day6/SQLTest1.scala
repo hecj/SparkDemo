@@ -7,6 +7,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
 /**
   * Created by zx on 2017/10/13.
+  * * SparkSQL 2.x编程方式
   */
 object SQLTest1 {
 
