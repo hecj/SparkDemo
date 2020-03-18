@@ -31,7 +31,13 @@ object SQLWordCount {
     // 执行sql （Transformation，lazy） value是默认的列名
     val result : DataFrame = spark.sql("select value,count(*) c from word_count group by value order by c desc")
 
+    // 执行Action
     result.show()
+
+
+    // todo 遍历后 写入 mysql redis hbase mongodb 等等
+//    result.foreachPartition()
+
     spark.stop()
   }
 }

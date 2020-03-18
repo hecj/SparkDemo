@@ -7,6 +7,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 /**
   * Created by zx on 2017/10/9.
   * jon的代价太昂贵，而且非常慢，解决思路是将表缓存起来（广播变量）
+  * 自定义函数
   */
 object IpLoactionSQL2 {
 
@@ -54,6 +55,7 @@ object IpLoactionSQL2 {
 
     //定义一个自定义函数（UDF），并注册
     //该函数的功能是（输入一个IP地址对应的十进制，返回一个省份名称）
+    // udf => user defined function
     spark.udf.register("ip2Province", (ipNum: Long) => {
       //查找ip规则（事先已经广播了，已经在Executor中了）
       //函数的逻辑是在Executor中执行的，怎样获取ip规则的对应的数据呢？
