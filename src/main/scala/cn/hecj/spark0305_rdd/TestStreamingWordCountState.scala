@@ -1,4 +1,4 @@
-package cn.hecj.spark0305
+package cn.hecj.spark0305_rdd
 
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 

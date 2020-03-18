@@ -1,4 +1,4 @@
-package cn.hecj.spark0306
+package cn.hecj.spark0306_straming
 
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
@@ -6,6 +6,7 @@ import kafka.serializer.StringDecoder
 import kafka.utils.{ZKGroupTopicDirs, ZKStringSerializer, ZkUtils}
 import org.I0Itec.zkclient.ZkClient
 import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -13,15 +14,16 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 /**
   * Created by hecj 20200306
   * 直连方式(Direct)（推荐使用直连方式，kafka0.10版本去掉了Receiver方式）
+  * v2版本(更改kafkaRDD获取方式)
   */
-object KafkaDirectWordCount {
+object KafkaDirectWordCountV2 {
 
   def main(args: Array[String]): Unit = {
 
     //指定组名
     val group = "g1"
     //创建SparkConf
-    val conf = new SparkConf().setAppName("KafkaDirectWordCount").setMaster("local[2]")
+    val conf = new SparkConf().setAppName("KafkaDirectWordCountV2").setMaster("local[2]")
     //创建SparkStreaming，并设置间隔时间
     val ssc = new StreamingContext(conf, Duration(5000))
     //指定消费的 topic 名字
@@ -62,14 +64,13 @@ object KafkaDirectWordCount {
 
     var kafkaStream: InputDStream[(String, String)] = null
 
-    //如果 zookeeper 中有保存 offset，我们会利用这个 offset 作为 kafkaStream 的起始位置
-    var fromOffsets: Map[TopicAndPartition, Long] = Map()
-
+    // --------- 公用 begin  目的是从上次记录kafka读取的偏移量开始读取----------
     //如果保存过 offset
     if (children > 0) {
+      //如果 zookeeper 中有保存 offset，我们会利用这个 offset 作为 kafkaStream 的起始位置
+      var fromOffsets: Map[TopicAndPartition, Long] = Map()
       for (i <- 0 until children) {
         // /g001/offsets/wordcount/0/10001
-
         // /g001/offsets/wordcount/0
         val partitionOffset = zkClient.readData[String](s"$zkTopicPath/${i}")
         // wordcount/0
@@ -81,7 +82,6 @@ object KafkaDirectWordCount {
       //Key: kafka的key   values: "hello tom hello jerry"
       //这个会将 kafka 的消息进行 transform，最终 kafak 的数据都会变成 (kafka的key, message) 这样的 tuple
       val messageHandler = (mmd: MessageAndMetadata[String, String]) => (mmd.key(), mmd.message())
-	  
       //通过KafkaUtils创建直连的DStream（fromOffsets参数的作用是:按照前面计算好了的偏移量继续消费数据）
 	  //[String, String, StringDecoder, StringDecoder,     (String, String)]
 	  //  key    value    key的解码方式   value的解码方式 
@@ -90,55 +90,36 @@ object KafkaDirectWordCount {
       //如果未保存，根据 kafkaParam 的配置使用最新(largest)或者最旧的（smallest） offset
       kafkaStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
     }
+    // --------- 公用 end ----------
 
-    //偏移量的范围
-    var offsetRanges = Array[OffsetRange]()
-
-    //从kafka读取的消息，DStream的Transform方法可以将当前批次的RDD获取出来
-    //该transform方法计算获取到当前批次RDD,然后将RDD的偏移量取出来，然后在将RDD返回到DStream
-    val transform: DStream[(String, String)] = kafkaStream.transform { rdd =>
-      //得到该 rdd 对应 kafka 的消息的 offset
-      //该RDD是一个KafkaRDD，可以获得偏移量的范围
-      offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-      rdd
-    }
-    val messages: DStream[String] = transform.map(_._2)
-
-    //依次迭代DStream中的RDD
-    messages.foreachRDD { rdd =>
-
-      // 周期性遍历 5秒钟
-
-      println("----------rdd-------"+rdd)
-
-      //对RDD进行操作，触发Action (有几个kafka分区就打印几次)
-      rdd.foreachPartition(partition => {
-        println("partition-------"+partition)
-        // 打印 单个kafka分区中的消息
-        partition.foreach(x => {
-            println("partition.foreach--"+x)
+    kafkaStream.foreachRDD( kafkaRDD =>{
+      println("----------kafkaRDD-------"+kafkaRDD)
+      // 获取当前批次kafka消息的偏移量
+      var offsetRanges: Array[OffsetRange] = kafkaRDD.asInstanceOf[HasOffsetRanges].offsetRanges
+      var lines : RDD[String] = kafkaRDD.map(_._2)
+      // 对RDD遍历，出发Action
+      lines.foreachPartition( partition =>{
+        println("partition:--"+partition)
+        partition.foreach(message =>{
+          println("partition.foreach:--"+message)
         })
-        }
-      )
+      })
 
-      for (o <- offsetRanges) {
-        //  /g001/offsets/wordcount/0
-        val zkPath = s"${topicDirs.consumerOffsetDir}/${o.partition}"
-        //将该 partition 的 offset 保存到 zookeeper
-        //  /g001/offsets/wordcount/0/20000
-        println("zkPath-------"+zkPath+"---"+o.untilOffset.toString)
-        ZkUtils.updatePersistentPath(zkClient, zkPath, o.untilOffset.toString)
+      // 无法保证偏移量事物一致
+      // 更新zk中分区消息的偏移量
+      for(o <- offsetRanges){
+        // zk中分区偏移量路径 如:/g1/offsets/spark_test3/0
+        var zkPath = s"${topicDirs.consumerOffsetDir}/${o.partition}"
+        println("zkPath:--"+zkPath)
+        println("untilOffset:--"+o.untilOffset.toString)
+        // 更新偏移量
+        ZkUtils.updatePersistentPath(zkClient,zkPath,o.untilOffset.toString)
       }
-    }
+    })
 
     ssc.start()
     ssc.awaitTermination()
 
   }
-
-
-
-
-
 
 }

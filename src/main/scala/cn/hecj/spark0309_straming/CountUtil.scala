@@ -1,4 +1,4 @@
-package cn.hecj.spark0309
+package cn.hecj.spark0309_straming
 
 import java.text.{DateFormat, SimpleDateFormat}
 import org.apache.spark.rdd.RDD

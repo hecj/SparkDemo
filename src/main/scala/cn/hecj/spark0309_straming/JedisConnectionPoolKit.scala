@@ -1,4 +1,4 @@
-package cn.hecj.spark0309
+package cn.hecj.spark0309_straming
 
 /**
   * Created by zx on 2017/10/20.

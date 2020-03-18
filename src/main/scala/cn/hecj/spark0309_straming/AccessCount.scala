@@ -1,4 +1,4 @@
-package cn.hecj.spark0309
+package cn.hecj.spark0309_straming
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.StringDecoder
