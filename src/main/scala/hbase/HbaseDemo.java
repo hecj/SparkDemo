@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * hbase操作演示
  * by hechaojie
+ * hbase 教程 http://c.biancheng.net/view/6530.html
  */
 public class HbaseDemo {
 	
@@ -171,6 +172,12 @@ public class HbaseDemo {
 	/**
 	 * @param tableName
 	 * @throws Exception
+	 *
+	RowFilter ：基于行键来过滤数据；
+	FamilyFilterr ：基于列族来过滤数据；
+	QualifierFilterr ：基于列限定符（列名）来过滤数据；
+	ValueFilterr ：基于单元格(cell) 的值来过滤数据；
+	DependentColumnFilter ：指定一个参考列来过滤其他列的过滤器，过滤的原则是基于参考列的时间戳来进行筛选 。
 	 */
 	public static void scanTable(TableName tableName) throws Exception{
 		Table table = conn.getTable(tableName);
@@ -205,16 +212,54 @@ public class HbaseDemo {
 //		ResultScanner resultScanner = table.getScanner(scan4);
 		
 		
-		//过滤器集合
-		Scan scan5 = new Scan();
-		FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-		SingleColumnValueFilter filter51 = new SingleColumnValueFilter(Bytes.toBytes("base_info"), Bytes.toBytes("name"),
-				CompareOperator.EQUAL, Bytes.toBytes("hechaojie"));
-		ColumnPrefixFilter filter52 = new ColumnPrefixFilter(Bytes.toBytes("name"));
-		list.addFilter(filter51);
-		list.addFilter(filter52);
-		scan5.setFilter(list);
-		ResultScanner resultScanner = table.getScanner(scan5);
+//		//过滤器集合
+//		Scan scan5 = new Scan();
+//		FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+//		SingleColumnValueFilter filter51 = new SingleColumnValueFilter(Bytes.toBytes("base_info"), Bytes.toBytes("name"),
+//				CompareOperator.EQUAL, Bytes.toBytes("hechaojie"));
+//		ColumnPrefixFilter filter52 = new ColumnPrefixFilter(Bytes.toBytes("name"));
+//		list.addFilter(filter51);
+//		list.addFilter(filter52);
+//		scan5.setFilter(list);
+//		ResultScanner resultScanner = table.getScanner(scan5);
+		
+		
+		// 时间戳过滤器 (TimestampsFilter)
+//		List<Long> list = new ArrayList<>();
+//		list.add(1586769481037l);
+//		TimestampsFilter timestampsFilter = new TimestampsFilter(list);
+//		Scan scan = new Scan();
+//		scan.setFilter(timestampsFilter);
+//		ResultScanner resultScanner = table.getScanner(scan);
+		
+		
+		// 首次行键过滤器 (FirstKeyOnlyFilter)
+		// FirstKeyOnlyFilter只扫描每行的第一列，扫描完第一列后就结束对当前行的扫描，并跳转到下一行。相比于全表扫描，其性能更好，通常用于行数统计的场景，因为如果某一行存在，则行中必然至少有一列。
+//		FirstKeyOnlyFilter firstKeyOnlyFilter = new FirstKeyOnlyFilter();
+//		Scan scan = new Scan();
+//		scan.setFilter(firstKeyOnlyFilter);
+//		ResultScanner resultScanner = table.getScanner(scan);
+		
+		
+		// SkipFilter过滤器
+		// SkipFilter包装一个过滤器,当被包装的过滤器遇到一个需要过滤的KeyValue实例时,则拓展过滤整行数据.下面是一个使用示例:
+		// 定义ValueFilter过滤器
+//		Filter filter1 = new ValueFilter(CompareOperator.NOT_EQUAL,new BinaryComparator(Bytes.toBytes("hechaojie")));
+//		// 使用SkipFilter进行包装
+//		Filter filter2 = new SkipFilter(filter1);
+//		Scan scan = new Scan();
+//		scan.setFilter(filter2);
+//		ResultScanner resultScanner = table.getScanner(scan);
+		
+		
+		// WhileMatchFilter过滤器
+		Filter filter1 = new ValueFilter(CompareOperator.NOT_EQUAL,new BinaryComparator(Bytes.toBytes("hechaojie")));
+		Filter filter2 = new WhileMatchFilter(filter1);
+		Scan scan = new Scan();
+		scan.setFilter(filter2);
+		ResultScanner resultScanner = table.getScanner(scan);
+		
+		
 		
 		for (Result rs : resultScanner){
 			String rowKey = Bytes.toString(rs.getRow());
