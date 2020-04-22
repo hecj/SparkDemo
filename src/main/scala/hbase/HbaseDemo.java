@@ -22,20 +22,25 @@ public class HbaseDemo {
 	static Configuration conf = null;
 	static Connection conn = null;
 	
-	static {
-		conf = HBaseConfiguration.create();
-		conf.set("hbase.zookeeper.quorum", "localhost");
-		conf.set("hbase.zookeeper.property.client", "2181");
-		try {
-			conn = ConnectionFactory.createConnection(conf);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	static {
+//		conf = HBaseConfiguration.create();
+//		conf.set("hbase.zookeeper.quorum", "localhost");
+//		conf.set("hbase.zookeeper.property.client", "2181");
+//		try {
+//			conn = ConnectionFactory.createConnection(conf);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	public static void main(String[] args)throws Exception {
 		
-		createTable("users");
+		byte[] str = "dfs收到".getBytes();
+		System.out.println(new String(str));
+		
+//		byte[] bs = null;
+//		new String(bs);
+//		createTable("users");
 //		deleteTable("users");
 		
 		// 添加数据
@@ -47,7 +52,7 @@ public class HbaseDemo {
 		// 查询数据
 //		getResult(TableName.valueOf("users"),"rowKey2");
 		// 过滤器
-		scanTable(TableName.valueOf("users"));
+//		scanTable(TableName.valueOf("users"));
 	}
 	
 	/**
