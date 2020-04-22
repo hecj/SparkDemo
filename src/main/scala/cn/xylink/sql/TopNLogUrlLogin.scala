@@ -57,7 +57,7 @@ object TopNLogUrlLogin {
     // 统计 /api/user/common/v2/token/check
 
     // url访问排行(登录用户排行)
-    val result : DataFrame= session.sql("select phone,count(1) c from log_url group by phone order by c");
+    val result : DataFrame= session.sql("select phone,count(1) c from log_url group by phone order by c desc");
 
     result.show()
     session.stop()
