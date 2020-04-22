@@ -158,7 +158,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>cn.hecj.spark0309_straming.AccessCount</mainClass>
+                  <mainClass>cn.xylink.sql.TopNLogUrlLogin</mainClass>
                 </transformer>
               </transformers>
             </configuration>
