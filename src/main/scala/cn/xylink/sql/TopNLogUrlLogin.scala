@@ -57,7 +57,12 @@ object TopNLogUrlLogin {
     // 统计 /api/user/common/v2/token/check
 
     // url访问排行(登录用户排行)
-    val result : DataFrame= session.sql("select phone,count(1) c from log_url group by phone order by c desc");
+    val result : DataFrame= session.sql("select phone,count(1) c from log_url where t.url='/api/user/common/v2/token/check' group by phone order by c desc limit 100");
+
+    // 1.使用spark sql统计活跃用户topN
+    //val result : DataFrame= session.sql("select phone,count(1) c from log_url group by phone order by c desc limit 100");
+
+
 
     result.show()
     session.stop()
