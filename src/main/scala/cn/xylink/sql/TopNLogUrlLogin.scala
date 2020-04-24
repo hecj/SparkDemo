@@ -29,7 +29,13 @@ object TopNLogUrlLogin {
 //      .appName("TopNLogUrlLogin")
 //      .getOrCreate()
 
-    val lines: RDD[String] = session.sparkContext.textFile("hdfs://test.xylink.cn:19000/data/www/log/log_url_login")
+    // 多个文件
+    var fileList = Array(
+      "hdfs://test.xylink.cn:19000/data/www/log/log_url_login/20200422",
+      "hdfs://test.xylink.cn:19000/data/www/log/log_url_login/20200423",
+      "hdfs://test.xylink.cn:19000/data/www/log/log_url_login/20200424");
+    val lines: RDD[String] = session.sparkContext.textFile(fileList.mkString(","))
+
     //创建RDD
 //    val lines: RDD[String] = session.sparkContext.textFile("hdfs://test.xylink.cn:19000/data/www/log/log_url_login/20200424")
 
@@ -62,7 +68,6 @@ object TopNLogUrlLogin {
 
     // 1.使用spark sql统计活跃用户topN
     //val result : DataFrame= session.sql("select phone,count(1) c from log_url group by phone order by c desc limit 100");
-
 
 
     result.show()
