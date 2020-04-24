@@ -30,7 +30,7 @@ object TopNLogUrlLogin {
 //      .getOrCreate()
 
     //创建RDD
-    val lines: RDD[String] = session.sparkContext.textFile("hdfs://test.xylink.cn:19000/data/www/log/log_url_login/20200422")
+    val lines: RDD[String] = session.sparkContext.textFile("hdfs://test.xylink.cn:19000/data/www/log/log_url_login/20200424")
 
     // 整理字段
     val logsRDD : RDD[LogUrl] = lines.map(line =>{
