@@ -23,6 +23,9 @@ package arithmetic;
  left的往右移动，right往做移动,当left<right才有效，如果left=right说明只有一个元素了，没必要排序了
  
  
+ leedcode 地址： https://leetcode-cn.com/problems/sort-an-array/
+ 
+ 
  **/
 public class SpeedSort {
 
