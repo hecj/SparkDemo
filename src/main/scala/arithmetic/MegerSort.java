@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class MegerSort {
 
 	public static void main(String[] args){
-		int[] nums = {8,4,5,7,1,3,6,2};
+		int[] nums = {5,1,6,7,2,8,4};
 		int[] temps = new int[nums.length];
 		mergeSort(nums,0,nums.length-1,temps);
 		System.out.println(Arrays.toString(nums));
