@@ -11,9 +11,9 @@ import java.io.IOException;
  * 20200610 by hecj
  */
 public class IOSercet {
-	static String fileName ="/Users/hecj/Desktop/file2/1.txt";
-	static String secretFileName ="/Users/hecj/Desktop/file2/1.txt.sec";
-	static String decryptFileName ="/Users/hecj/Desktop/file2/1.decrypt.txt";
+	static String fileName ="/Users/hecj/Desktop/file2/1.mp4";
+	static String secretFileName ="/Users/hecj/Desktop/file2/1.mp4.sec";
+	static String decryptFileName ="/Users/hecj/Desktop/file2/1.decrypt.mp4";
 	public static void main(String[] args) throws IOException {
 		secret(fileName,secretFileName);
 		decrypt(secretFileName,decryptFileName);
@@ -30,6 +30,9 @@ public class IOSercet {
 		while((n=bis.read())!=-1){
 //			System.out.println(n);
 			// 一次读取一个字节 0-255之间 , 1个字节是8位
+			// byte转二进制字符串
+//			String tString = Integer.toBinaryString((n & 0xFF) + 0x100).substring(1);
+//			System.out.println(n+"_"+tString);
 			bos.write(n+1);
 		}
 		long b=System.currentTimeMillis();
