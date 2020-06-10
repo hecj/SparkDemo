@@ -27,7 +27,7 @@ public class SplitFile {
 		File tempFile = new File("/Users/hecj/Desktop/file2/分割临时文件");
 		File dirFile = new File("/Users/hecj/Desktop/file2/合并文件");
 		String fileName = srcFile.getName();
-		cut(srcFile,tempFile,1024*30);//按照30字节切割
+		cut(srcFile,tempFile,1024*1024);//按照30字节切割
 		unionFile(tempFile, dirFile, fileName);
 		
 	}
@@ -39,7 +39,7 @@ public class SplitFile {
 	 * @param tempFile
 	 * @throws IOException 
 	 */
-	public static void cut(File srcFile, File tempFile,int b/*按照b字节切割*/) throws IOException {
+	public static void cut(File srcFile, File tempFile,int cutByte/*按照cutByte字节切割*/) throws IOException {
 		
 		 //读取源地址文件  
         FileInputStream fis = new FileInputStream(srcFile);  
@@ -49,7 +49,7 @@ public class SplitFile {
             tempFile.mkdirs();  
         }  
       
-        byte[] bs = new byte[1024*1024];
+        byte[] bs = new byte[cutByte];
         int len =0;  
         int count = 0;  
         while((len=fis.read(bs)) != -1){  
