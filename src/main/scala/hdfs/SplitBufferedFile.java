@@ -14,8 +14,6 @@ import java.util.List;
  *          然后使用Enumeration列举出所有文件，合并流合并文件 
  *          最后写入到目标的地址中 
  * 
- * @author zw
- *
  */
 public class SplitBufferedFile {
 	public static void main(String[] args) throws IOException {
