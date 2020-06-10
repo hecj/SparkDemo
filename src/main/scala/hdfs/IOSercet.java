@@ -28,6 +28,8 @@ public class IOSercet {
 		int n;
 		long a=System.currentTimeMillis();
 		while((n=bis.read())!=-1){
+			System.out.println(n);
+			// 一次读取一个字节 0-255之间 , 1个字节是8位
 			bos.write(n+1);
 		}
 		long b=System.currentTimeMillis();
