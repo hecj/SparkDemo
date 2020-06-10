@@ -20,11 +20,11 @@ import java.util.List;
  */
 public class SplitBufferedFile {
 	public static void main(String[] args) throws IOException {
-		File srcFile = new File("/Users/hecj/Desktop/file2/1.pdf");
+		File srcFile = new File("/Users/hecj/Desktop/file2/test.zip");
 		File tempFile = new File("/Users/hecj/Desktop/file2/分割临时文件");
 		File dirFile = new File("/Users/hecj/Desktop/file2/合并文件");
 		String fileName = srcFile.getName();
-		cut(srcFile,tempFile,1024);//按照30字节切割
+		cut(srcFile,tempFile,1024*1024*64);//按照30字节切割
 		unionFile(tempFile, dirFile, fileName);
 	}
 	
@@ -49,7 +49,7 @@ public class SplitBufferedFile {
         int len =0;  
         int count = 0;  
         while((len=fis.read(bs)) != -1){
-        	System.out.println("len:"+len);
+//        	System.out.println("len:"+len);
             int num = count++;
             //写入暂存地址目录中  
             fos = new BufferedOutputStream(new FileOutputStream(new File(tempFile, num+".part")));
