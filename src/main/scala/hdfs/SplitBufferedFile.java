@@ -7,6 +7,9 @@ import java.util.Enumeration;
 import java.util.List;
 
 /***
+ * 文件分割和合并
+ * 20200610 by hecj
+ *
  *  文件的切割和合并 
  * 1.要切割和合并文件：主要考虑的就是文件的源地址，目标地址，暂存文件地址和文件名称 
  * 2.切割文件：判断给的暂存地址是否存在，不存在，则创建；从源地址中读出文件，按照给定的大小进行文件的切割操作放入暂存地址中 
@@ -17,11 +20,11 @@ import java.util.List;
  */
 public class SplitBufferedFile {
 	public static void main(String[] args) throws IOException {
-		File srcFile = new File("/Users/hecj/Desktop/file2/1.mp4");
+		File srcFile = new File("/Users/hecj/Desktop/file2/1.pdf");
 		File tempFile = new File("/Users/hecj/Desktop/file2/分割临时文件");
 		File dirFile = new File("/Users/hecj/Desktop/file2/合并文件");
 		String fileName = srcFile.getName();
-		cut(srcFile,tempFile,1024*1024);//按照30字节切割
+		cut(srcFile,tempFile,1024);//按照30字节切割
 		unionFile(tempFile, dirFile, fileName);
 	}
 	
