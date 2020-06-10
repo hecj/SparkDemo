@@ -1,15 +1,11 @@
 package hdfs;
- 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.SequenceInputStream;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+
 /***
  *  文件的切割和合并 
  * 1.要切割和合并文件：主要考虑的就是文件的源地址，目标地址，暂存文件地址和文件名称 
@@ -21,7 +17,7 @@ import java.util.List;
  * @author zw
  *
  */
-public class SplitFile {
+public class SplitBufferedFile {
 	public static void main(String[] args) throws IOException {
 		File srcFile = new File("/Users/hecj/Desktop/file2/1.mp4");
 		File tempFile = new File("/Users/hecj/Desktop/file2/分割临时文件");
@@ -29,7 +25,6 @@ public class SplitFile {
 		String fileName = srcFile.getName();
 		cut(srcFile,tempFile,1024*1024);//按照30字节切割
 		unionFile(tempFile, dirFile, fileName);
-		
 	}
 	
 	/***
@@ -42,8 +37,8 @@ public class SplitFile {
 	public static void cut(File srcFile, File tempFile,int cutByte/*按照cutByte字节切割*/) throws IOException {
 		
 		 //读取源地址文件  
-        FileInputStream fis = new FileInputStream(srcFile);  
-        FileOutputStream fos = null;  
+		BufferedInputStream fis = new BufferedInputStream(new FileInputStream(srcFile));
+		BufferedOutputStream fos = null;
         //是否为文件，不是就创建  
         if(!tempFile.isFile()){  
             tempFile.mkdirs();  
@@ -56,7 +51,7 @@ public class SplitFile {
         	System.out.println("len:"+len);
             int num = count++;
             //写入暂存地址目录中  
-            fos = new FileOutputStream(new File(tempFile, num+".part"));  
+            fos = new BufferedOutputStream(new FileOutputStream(new File(tempFile, num+".part")));
             fos.write(bs, 0, len);  
               
         }  
@@ -74,18 +69,18 @@ public class SplitFile {
 		if(!dirFile.isFile()) {
 			dirFile.mkdirs();
 		}
-		List<FileInputStream> list = new ArrayList<FileInputStream>();
+		List<BufferedInputStream> list = new ArrayList<BufferedInputStream>();
 		File[] f =tempFile.listFiles();
 		
 		
 		for(int i =0;i<f.length;i++) {
-			list.add(new FileInputStream(new File(tempFile, i+".part")));
+			list.add(new BufferedInputStream(new FileInputStream(new File(tempFile, i+".part"))));
 		}
 		//将文件全部列取出来
-		Enumeration<FileInputStream> eum = Collections.enumeration(list);
+		Enumeration<BufferedInputStream> eum = Collections.enumeration(list);
 		
-		 SequenceInputStream sis = new SequenceInputStream(eum); 
-		 FileOutputStream fos= new FileOutputStream(new File(dirFile,fileName));
+		 SequenceInputStream sis = new SequenceInputStream(eum);
+		BufferedOutputStream fos= new BufferedOutputStream(new FileOutputStream(new File(dirFile,fileName)));
 		 
 		 byte[] bte = new byte[1024];
 		 int len;
