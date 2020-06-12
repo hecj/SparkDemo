@@ -20,6 +20,9 @@ import java.util.List;
  */
 public class SplitBufferedFile {
 	public static void main(String[] args) throws IOException {
+
+		// RandomAccessFile 实现大文件随机位置访问，断点续传等功能
+
 		File srcFile = new File("/Users/hecj/Desktop/file2/test.zip");
 		File tempFile = new File("/Users/hecj/Desktop/file2/分割临时文件");
 		File dirFile = new File("/Users/hecj/Desktop/file2/合并文件");
